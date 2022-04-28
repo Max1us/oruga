@@ -52,6 +52,20 @@
                     <slot name="header">
                         <div :class="headerButtonsClasses">
                             <a
+                                v-show="!showPrevYear && !disabled"
+                                :class="prevBtnClasses"
+                                role="button"
+                                href="#"
+                                :disabled="disabled"
+                                :aria-label="ariaPreviousLabel"
+                                @click.prevent="prev"
+                                @keydown.enter.prevent="prevYear"
+                                @keydown.space.prevent="prevYear">
+                                <span class="prevYear">
+                                    &#171;
+                                </span>
+                            </a>
+                            <a
                                 v-show="!showPrev && !disabled"
                                 :class="prevBtnClasses"
                                 role="button"
@@ -60,13 +74,17 @@
                                 @click.prevent="prev"
                                 @keydown.enter.prevent="prev"
                                 @keydown.space.prevent="prev">
-
+                                <span class="prevMonth" v-if="noIcons">
+                                    &#8249;
+                                </span>
                                 <o-icon
+                                    v-else
                                     :icon="iconPrev"
                                     :pack="iconPack"
                                     both
                                     clickable />
                             </a>
+
                             <a
                                 v-show="!showNext && !disabled"
                                 :class="nextBtnClasses"
@@ -76,12 +94,29 @@
                                 @click.prevent="next"
                                 @keydown.enter.prevent="next"
                                 @keydown.space.prevent="next">
-
+                                <span class="nextMonth" v-if="noIcons">
+                                    &#8250;
+                                </span>
                                 <o-icon
+                                    v-else
                                     :icon="iconNext"
                                     :pack="iconPack"
                                     both
                                     clickable />
+                            </a>
+                            <a
+                                v-show="!showNextYear && !disabled"
+                                :class="nextBtnClasses"
+                                role="button"
+                                href="#"
+                                :disabled="disabled"
+                                :aria-label="ariaNextLabel"
+                                @click.prevent="next"
+                                @keydown.enter.prevent="nextYear"
+                                @keydown.space.prevent="nextYear">
+                                <span class="nextYear">
+                                    &#187;
+                                </span>
                             </a>
                             <div :class="listsClasses">
                                 <o-select
@@ -570,9 +605,12 @@ export default defineComponent({
                 return getValueByPath(getOptions(), 'datepicker.dropdownClasses', {})
             }
         },
-        /* Force next/prev icons to use a specific unit - month or year */
-        overrideNavBtnUnit: {
-            type: [Boolean, String],
+        noIcons: {
+            type: [Boolean],
+            default: false
+        },
+        showYearNavBtns: {
+            type: [Boolean],
             default: false
         },
         selectListClasses: Object
@@ -741,45 +779,40 @@ export default defineComponent({
 
             return arrayOfYears.reverse()
         },
-
         showPrev() {
             if (!this.minDate) return false
-            let forceMonth = false
-            let forceYear = false
-            if (this.overrideNavBtnUnit) {
-                if (this.overrideNavBtnUnit === 'month') {
-                    forceMonth = true
-                } else if (this.overrideNavBtnUnit === 'year') {
-                    forceYear = true
-                }
-            }
-            
-            if ((this.isTypeMonth && !forceMonth) || forceYear) {
+            if (this.isTypeMonth) {
                 return this.focusedDateData.year <= this.minDate.getFullYear()
             }
             const dateToCheck = new Date(this.focusedDateData.year, this.focusedDateData.month)
             const date = new Date(this.minDate.getFullYear(), this.minDate.getMonth())
             return (dateToCheck <= date)
         },
-
         showNext() {
             if (!this.maxDate) return false
-            let forceMonth = false
-            let forceYear = false
-            if (this.overrideNavBtnUnit) {
-                if (this.overrideNavBtnUnit === 'month') {
-                    forceMonth = true
-                } else if (this.overrideNavBtnUnit === 'year') {
-                    forceYear = true
-                }
-            }
-            
-            if ((this.isTypeMonth && !forceMonth) || forceYear) {
+            if (this.isTypeMonth) {
                 return this.focusedDateData.year >= this.maxDate.getFullYear()
             }
             const dateToCheck = new Date(this.focusedDateData.year, this.focusedDateData.month)
             const date = new Date(this.maxDate.getFullYear(), this.maxDate.getMonth())
             return (dateToCheck >= date)
+        },
+
+        showPrevYear() {
+            if (!this.minDate) return false
+
+            return this.focusedDateData.year <= this.minDate.getFullYear()
+            // const dateToCheck = new Date(this.focusedDateData.year, this.focusedDateData.month)
+            // const date = new Date(this.minDate.getFullYear(), this.minDate.getMonth())
+            // return (dateToCheck <= date)
+        },
+        showNextYear() {
+            if (!this.maxDate) return false
+            
+            return this.focusedDateData.year >= this.maxDate.getFullYear()
+            // const dateToCheck = new Date(this.focusedDateData.year, this.focusedDateData.month)
+            // const date = new Date(this.maxDate.getFullYear(), this.maxDate.getMonth())
+            // return (dateToCheck >= date)
         },
 
         isMobile() {
@@ -864,17 +897,8 @@ export default defineComponent({
          */
         prev() {
             if (this.disabled) return
-            let forceMonth = false
-            let forceYear = false
-            if (this.overrideNavBtnUnit) {
-                if (this.overrideNavBtnUnit === 'month') {
-                    forceMonth = true
-                } else if (this.overrideNavBtnUnit === 'year') {
-                    forceYear = true
-                }
-            }
-            
-            if ((this.isTypeMonth && !forceMonth) || forceYear) {
+
+            if (this.isTypeMonth) {
                 this.focusedDateData.year -= 1
             } else {
                 if (this.focusedDateData.month > 0) {
@@ -885,6 +909,11 @@ export default defineComponent({
                 }
             }
         },
+        prevYear() {
+            if (this.disabled) return
+
+            this.focusedDateData.year -= 1
+        },
 
         /*
          * Either increment month by 1 if not December or increment year by 1
@@ -892,17 +921,8 @@ export default defineComponent({
          */
         next() {
             if (this.disabled) return
-            let forceMonth = false
-            let forceYear = false
-            if (this.overrideNavBtnUnit) {
-                if (this.overrideNavBtnUnit === 'month') {
-                    forceMonth = true
-                } else if (this.overrideNavBtnUnit === 'year') {
-                    forceYear = true
-                }
-            }
-            
-            if ((this.isTypeMonth && !forceMonth) || forceYear) {
+
+            if (this.isTypeMonth) {
                 this.focusedDateData.year += 1
             } else {
                 if (this.focusedDateData.month < 11) {
@@ -912,6 +932,12 @@ export default defineComponent({
                     this.focusedDateData.year += 1
                 }
             }
+        },
+        nextYear() {
+            if (this.disabled) return
+
+            this.focusedDateData.year += 1
+
         },
 
         formatNative(value) {
