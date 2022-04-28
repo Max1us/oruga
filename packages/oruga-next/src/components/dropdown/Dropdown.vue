@@ -6,7 +6,6 @@
     >
         <div
             v-if="!inline"
-            role="button"
             :tabindex="disabled ? null : 0"
             ref="trigger"
             :class="triggerClasses"
@@ -30,9 +29,11 @@
             <div
                 v-show="(!disabled && (isActive || isHoverable)) || inline"
                 ref="dropdownMenu"
+                :is="menuTag"
                 :class="menuClasses"
                 :aria-hidden="!isActive"
                 :role="ariaRole"
+                :aria-modal="!inline"
                 :style="menuStyle"
                 v-trap-focus="trapFocus">
                 <slot/>
@@ -190,6 +191,16 @@ export default defineComponent({
          * Append dropdown content to body
          */
         appendToBody: Boolean,
+        /**
+         * Dropdown menu tag name
+         */
+        menuTag: {
+            type: String,
+            default: () => {
+                return getValueByPath(getOptions(), 'dropdown.menuTag', 'div')
+            }
+        },
+
         /**
         * @ignore
         */
@@ -409,7 +420,7 @@ export default defineComponent({
                 this.rootClasses.forEach((item) => {
                     if (item) {
                         if (typeof item === 'object') {
-                            Object.keys(item).filter(key => item[key]).forEach(
+                            Object.keys(item).filter(key => key && item[key]).forEach(
                                 key => dropdown.classList.add(key))
                         } else {
                             dropdown.classList.add(...item.split(' '))

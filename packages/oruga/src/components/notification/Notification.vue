@@ -7,7 +7,7 @@
                 v-if="closable"
                 :class="closeClasses"
                 type="button"
-                @click="close"
+                @click="close({action: 'close', method: 'x'})"
                 :aria-label="ariaCloseLabel"
             >
                 <o-icon
@@ -101,7 +101,7 @@ export default {
         closeIcon: {
             type: String,
             default: () => {
-                return getValueByPath(getOptions(), 'notification.closeIcon', 'times')
+                return getValueByPath(getOptions(), 'notification.closeIcon', 'close')
             }
         },
         rootClass: [String, Function, Array],
