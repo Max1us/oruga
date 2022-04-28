@@ -1,6 +1,5 @@
 import { getOptions } from './config'
-import { getValueByPath} from './helpers'
-import { removeElement } from './helpers'
+import { getValueByPath, removeElement, promiseObject } from './helpers'
 
 export default {
     props: {
@@ -13,7 +12,9 @@ export default {
         /** Visibility duration in miliseconds. */
         duration: {
             type: Number,
-            default: getValueByPath(getOptions(), 'notification.duration', 1000)
+            default: () => {
+                return getValueByPath(getOptions(), 'notification.duration', 1000)
+            }
         },
         /** If should queue with others notices (snackbar/toast/notification). */
         queue: {
@@ -45,8 +46,14 @@ export default {
         /** DOM element the toast will be created on. Note that this also changes the position of the toast from fixed to absolute. Meaning that the container should be fixed. */
         container: {
             type: String,
-            default: getValueByPath(getOptions(), 'notification.containerElement', undefined)
+            default: () => {
+                return getValueByPath(getOptions(), 'notification.containerElement', undefined)
+            }
         },
+        /** @ignore */
+        programmatic: [Boolean, Object],
+        /** @ignore */
+        promise: promiseObject(),
         /** Callback function to call after close (programmatically close or user canceled) */
         onClose: {
             type: Function,
@@ -109,6 +116,10 @@ export default {
             this.$emit('close')
             this.onClose.apply(null, arguments)
 
+            if (this.programmatic && this.programmatic.resolve) {
+                this.programmatic.resolve.apply(null, arguments)
+            }
+
             // Timeout for the animation complete before destroying
             setTimeout(() => {
                 this.isActive = false
@@ -155,7 +166,7 @@ export default {
         },
 
         timeoutCallback() {
-            return this.close()
+            return this.close({action: 'close', method: 'timeout'})
         }
     },
     beforeMount() {

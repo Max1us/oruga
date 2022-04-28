@@ -32,6 +32,8 @@ Go to [Notification Notice](#notification-notice) section to see all the availab
       <hr />
       <o-button label="Launch notification (custom)" variant="danger" size="medium" @click="danger" />
       <o-button label="Launch notification (component)" variant="warning" size="medium" @click="component" />
+      <hr />
+      <o-button label="Lauch with promise" size="medium" @click="promise" />
     </div>
   </section>
 </template>
@@ -118,11 +120,33 @@ Go to [Notification Notice](#notification-notice) section to see all the availab
       },
       component() {
         this.$oruga.notification.open({
+          // parent is only for Vue2. in Vue 3 omit this option
           parent: this,
           component: NotificationForm,
           position: 'bottom-right',
           variant: 'warning',
           indefinite: true
+        })
+      },
+      async promise() {
+        const instance = this.$oruga.notification.open({
+          message: "Notification with promise response. The promise returns how the notification was closed. (value from $emit('close', value)",
+          position: 'top',
+          variant: 'info',
+          duration: 5000,
+          closable: true
+        })
+
+        // Note utilizing the promise requires Promise be supported by the browser
+        // If you are running Vue 2 on IE 11 this will not be the case unless you
+        // add a polyfill in your build.
+        const ret = await instance.promise
+
+        this.$oruga.notification.open({
+          message: 'Notification was resolved with ' + JSON.stringify(ret),
+          position: 'top',
+          variant: 'success',
+          duration: 2000
         })
       }
     }
@@ -323,7 +347,7 @@ export default {
 | ariaCloseLabel | Label for the close button, to be read by accessibility screenreaders.                                                                                         | string         | -                                                                               |                                                                                                                                                |
 | autoClose      | Hide notification after duration only not programmatic.                                                                                                        | boolean        | -                                                                               | false                                                                                                                                          |
 | closable       | Adds an 'X' button that closes the notification.                                                                                                               | boolean        | -                                                                               | false                                                                                                                                          |
-| closeIcon      | Close icon name                                                                                                                                                | string         | -                                                                               | <div>From <b>config</b></div><br><code style='white-space: nowrap; padding: 0;'> notification: {<br>&nbsp;&nbsp;closeIcon: 'times'<br>}</code> |
+| closeIcon      | Close icon name                                                                                                                                                | string         | -                                                                               | <div>From <b>config</b></div><br><code style='white-space: nowrap; padding: 0;'> notification: {<br>&nbsp;&nbsp;closeIcon: 'close'<br>}</code> |
 | closeIconSize  | Size of close icon                                                                                                                                             | string         | -                                                                               | 'small'                                                                                                                                        |
 | component      | Component to be injected, used to open a component modal programmatically. Close modal within the component by emitting a 'close' event — this.\$emit('close') | object\|func   | -                                                                               |                                                                                                                                                |
 | duration       | Visibility duration in miliseconds.                                                                                                                            | number         | -                                                                               | 2000                                                                                                                                           |

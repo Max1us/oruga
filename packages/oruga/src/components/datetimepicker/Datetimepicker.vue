@@ -112,6 +112,11 @@ export default {
             type: Boolean,
             default: false
         },
+        /**
+         * Size of button, optional
+         * @values small, medium, large
+         */
+        size: String,
         placeholder: String,
         disabled: Boolean,
         /**
@@ -358,7 +363,7 @@ export default {
                         datetimeGroups.hour < 24 &&
                         datetimeGroups.minute &&
                         datetimeGroups.minute >= 0 &&
-                        datetimeGroups.minute < 59
+                        datetimeGroups.minute <= 59
                     ) {
                         const d = new Date(
                             datetimeGroups.year,

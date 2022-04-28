@@ -94,6 +94,10 @@ function tmplProps(props, config, name) {
 | Prop name     | Description | Type      | Values      | Default     |
 | ------------- |-------------| --------- | ----------- | ----------- |
 `
+  props = props.filter(function(prop) {
+      return !('tags' in prop) || !('ignore' in prop.tags);
+  });
+
   props.sort(function(propa, propb) {
     return (propa.name < propb.name) ? -1 : (propa.name > propb.name) ? 1 : 0;
   });
@@ -152,6 +156,7 @@ function renderStyleDocs(config, name) {
   | CSS Variable          | SASS Variable  | Default |
   | --------------------- | -------------- | ------- |
 ${variables
+      .filter(variable => variable.indexOf('@deprecated') < 0)
       .map(variable => {
         const keyValue = variable.split(':');
         const varName = keyValue[0].trim();

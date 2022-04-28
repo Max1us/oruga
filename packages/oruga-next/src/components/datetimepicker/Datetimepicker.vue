@@ -112,6 +112,7 @@ export default defineComponent({
             type: Boolean,
             default: false
         },
+        size: String,
         placeholder: String,
         disabled: Boolean,
         iconRight: String,
@@ -333,7 +334,7 @@ export default defineComponent({
                         datetimeGroups.hour < 24 &&
                         datetimeGroups.minute &&
                         datetimeGroups.minute >= 0 &&
-                        datetimeGroups.minute < 59
+                        datetimeGroups.minute <= 59
                     ) {
                         const d = new Date(
                             datetimeGroups.year,

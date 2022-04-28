@@ -1,5 +1,5 @@
 <template>
-    <span
+    <div
         ref="tooltip"
         :class="rootClasses">
         <transition :name="newAnimation">
@@ -26,7 +26,7 @@
             @mouseleave="close">
             <slot ref="slot" />
         </div>
-    </span>
+    </div>
 </template>
 
 <script lang="ts">
@@ -45,6 +45,7 @@ export default defineComponent({
     name: 'OTooltip',
     mixins: [BaseComponentMixin],
     configField: 'tooltip',
+    emits: ['open', 'close'],
     props: {
         /** Whether tooltip is active or not, use the .sync modifier (Vue 2.x) or v-model:active (Vue 3.x) to make it two-way binding */
         active: {
@@ -158,6 +159,7 @@ export default defineComponent({
     },
     watch: {
         isActive(value) {
+            this.$emit(this.isActive ? 'open' : 'close')
             if (value && this.appendToBody) {
                 this.updateAppendToBody()
             }
@@ -176,7 +178,7 @@ export default defineComponent({
                 }
                 this.rootClasses.forEach((item) => {
                     if (typeof item === 'object') {
-                        Object.keys(item).filter(key => !!item[key]).forEach(
+                        Object.keys(item).filter(key => key && item[key]).forEach(
                             key => tooltipEl.classList.add(key))
                     } else {
                         tooltipEl.classList.add(...item.split(' '))
