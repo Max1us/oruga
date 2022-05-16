@@ -58,7 +58,7 @@
                                 href="#"
                                 :disabled="disabled"
                                 :aria-label="ariaPreviousLabel"
-                                @click.prevent="prev"
+                                @click.prevent="prevYear"
                                 @keydown.enter.prevent="prevYear"
                                 @keydown.space.prevent="prevYear">
                                 <span class="prevYear">
@@ -111,7 +111,7 @@
                                 href="#"
                                 :disabled="disabled"
                                 :aria-label="ariaNextLabel"
-                                @click.prevent="next"
+                                @click.prevent="nextYear"
                                 @keydown.enter.prevent="nextYear"
                                 @keydown.space.prevent="nextYear">
                                 <span class="nextYear">
@@ -808,7 +808,7 @@ export default defineComponent({
         },
         showNextYear() {
             if (!this.maxDate) return false
-            
+
             return this.focusedDateData.year >= this.maxDate.getFullYear()
             // const dateToCheck = new Date(this.focusedDateData.year, this.focusedDateData.month)
             // const date = new Date(this.maxDate.getFullYear(), this.maxDate.getMonth())
